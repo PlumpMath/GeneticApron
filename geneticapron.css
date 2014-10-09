@@ -10,9 +10,10 @@ body {
     user-select: none;
 }
 
-.header {
+.header h2 {
     font-size: 2em;
     font-weight: bold;
+    margin: 0px 0px;
 }
 .outer {
     margin: 0 auto;
