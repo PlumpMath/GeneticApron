@@ -4,12 +4,10 @@
 </head>
 
 <body>
-  <div class="outer">
-    {{> catalog}}
-  </div>
-  <div class="controls">
-    {{> controls}}
-  </div>
+    <div class="outer">
+        {{> catalog}}
+        {{> controls}}
+    </div>
 </body>
 
 <template name="catalog">
@@ -31,12 +29,14 @@
 
 <template name="choice">
   <div class="choice {{selected}}">
-    <span class="name">{{name}}</span>
-    <span class="score">{{score}}</span>
+    <div class="image">{{image}}</div>
+    <div class="name">{{name}}</div>
   </div>
 </template>
 
 <template name="controls">
-    <button class="control reset">Reset</button>
+    <div class="controls">
+        <button class="control reset">Reset</button>
+    </div>
 </template>
 

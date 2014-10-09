@@ -66,7 +66,7 @@ var myjson = {};
             console.log("---");
             console.log(post.name);
             console.log(p2 + p1);
-            Choices.update(post, {$set: {name: p2 + p1}});
+            Choices.update(post, {$set: {name: p2 + p1}, $inc: {generation: 1}});
           });
       },
   });
