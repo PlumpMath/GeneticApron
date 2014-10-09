@@ -9,10 +9,10 @@
         <a href="https://github.com/provolot/GeneticApron">https://github.com/provolot/GeneticApron</a>
     </div>
     {{> generation_controls}}
+    {{> breed_controls}}
     <div class="catalog-wrapper">
         {{> catalog}}
     </div>
-    {{> breed_controls}}
 </body>
 
 <template name="catalog">
@@ -50,9 +50,10 @@
 
 <template name="apron">
   <div class="apron {{selected}}">
-    <div class="image" style="background-color:{{chromosome_color}};">{{image}}</div>
+    <div class="image" style="{{chromosome_style}};">
+        <img src=/ebola_suit_transp.png>
+    </div>
     <div class="name">{{name}}</div>
-    <div class="generation">generation: {{generation}}</div>
     <div class="chromosome">chromosome: {{chromosome}}</div>
   </div>
 </template>

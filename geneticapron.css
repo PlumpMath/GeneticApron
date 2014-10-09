@@ -24,24 +24,30 @@ body {
 }
 .apron {
     cursor: pointer;
-    padding: 5px 10px;
+    padding: 5px 5px;
     margin: 5px;
-    width: 150px;
+    width: 200px;
     height: 250px;
-    background-color: #CCC;
+    background-color: #DDD;
     float: left;
 }
 
 .apron .image {
-    background-image: url('ebola_suit_transp.png');
+/*    background-image: url('ebola_suit_transp.png');
     background-repeat:no-repeat;
     background-size:contain;
-    background-position:center;
-    width: 150px;
-    height: 150px;
+    background-position:center; */
+    width: 200px;
+    height: 200px;
+}
+
+.apron .image img {
+    max-width: 100%; 
+    max-height: 100%;
 }
 
 .apron .name {
+font-weight: bold;
     display: inline-block;
     width: 70%;
     font-size: 1em;

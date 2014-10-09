@@ -1,5 +1,5 @@
 var _SELECTION_MAX = 3;
-var _POPULATION_SIZE;
+var _POPULATION_SIZE = 18;
 var _MUTATION_PROBABILITY = 0.1;
 var _END_GENERATIONS = 20.0;
 var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
@@ -27,8 +27,20 @@ if (Meteor.isClient) {
     return Aprons.findOne({}).generation;
   };
   
-  Template.apron.chromosome_color = function () {
-      return "#" + binaryToHex(this.chromosome).result;
+  Template.apron.chromosome_style = function () {
+      var stripe = this.chromosome.slice(0,1);
+      var color = "#" + binaryToHex(this.chromosome.slice(1, 25)).result;
+      var color2 = "#" + binaryToHex(this.chromosome.slice(25, 49)).result;
+console.log(this.chromosome.slice(49));
+      var stripethickness = binaryToDec(this.chromosome.slice(49, 54));
+      var striperotation = binaryToDec(this.chromosome.slice(54, 62)) / 256.0 * 180;
+
+      if(stripe == "0")    
+        return "background-color:" + color;
+      var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
+
+      console.log(thisstyle);
+      return thisstyle;
   };
 
   Template.apron.selected = function () {
@@ -36,6 +48,10 @@ if (Meteor.isClient) {
     if(selecteds === undefined)
         return "";
     return (this._id in selecteds) ? "selected" : '';
+  };
+
+  Template.apron.image = function() {
+    return "<img src=/ebola_suit_transp.png>";
   };
 
   Template.breed_controls.events({
@@ -82,7 +98,7 @@ if (Meteor.isServer) {
 
 var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
-  _POPULATION_SIZE = myjson.designs.length; // fix this  
+//  _POPULATION_SIZE = myjson.designs.length; // fix this  
 
   Meteor.methods({
       initPopulation: function() {
@@ -151,7 +167,7 @@ var myjson = {};
 
 
 function chromosomeToName(c) {
-    return "#" + binaryToHex(c).result;
+    return "#" + binaryToHex(c.slice(1,25)).result;
 }
 
 function shuffle(array) {
@@ -178,6 +194,9 @@ function randomIntInterval(min,max)
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+function binaryToDec(binary) {
+    return parseInt(binary, 2);
+}
 // converts binary string to a hexadecimal string
 // returns an object with key 'valid' to a boolean value, indicating
 // if the string is a valid binary string.
