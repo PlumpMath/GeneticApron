@@ -1,29 +1,30 @@
-// Set up a collection to contain choice information. On the server,
-// it is backed by a MongoDB collection named "choices".
+// Set up a collection to contain apron information. On the server,
+// it is backed by a MongoDB collection named "aprons".
 var _SELECTIONMAX = 2;
+var _POPULATIONSIZE;
 
-Choices = new Mongo.Collection("choices");
+Aprons = new Mongo.Collection("aprons");
 /* 
  * simple example: two buttons: -1 and +1 
  * when number is chosen, add value to running tally
  * then show -3, +5, etc
  */
 if (Meteor.isClient) {
-  Template.catalog.choices = function () {
-    return Choices.find({}, {sort: { name: 1}});
+  Template.catalog.aprons = function () {
+    return Aprons.find({}, {sort: { name: 1}});
   };
 
   Template.catalog.selected_names = function () {
-    var selecteds = EJSON.fromJSONValue(Session.get("selected_choice"));
-    var allchoices = [];
+    var selecteds = EJSON.fromJSONValue(Session.get("selected_apron"));
+    var allaprons = [];
     for (var key in selecteds) {
-        allchoices.push(Choices.findOne({"_id":key}).name);
+        allaprons.push(Aprons.findOne({"_id":key}).name);
     }
-    return allchoices.join(", ");
+    return allaprons.join(", ");
   };
 
-  Template.choice.selected = function () {
-    var selecteds = EJSON.fromJSONValue(Session.get("selected_choice"));
+  Template.apron.selected = function () {
+    var selecteds = EJSON.fromJSONValue(Session.get("selected_apron"));
     if(selecteds === undefined)
         return "";
     return (this._id in selecteds) ? "selected" : '';
@@ -31,31 +32,31 @@ if (Meteor.isClient) {
 
   Template.catalog.events({
     'click button.select': function () {
-        Session.set("selected_choice", undefined);
-//        Choices.update(Session.get("selected_choice"), {$inc: {score: 5}});
-        var ret = Meteor.call('shuffleChoiceNames', function(e, r) {
-//            console.log(r);
+        var selecteds_ids = Object.keys(EJSON.fromJSONValue(Session.get("selected_apron")));
+        console.log(selecteds_ids);
+        var ret = Meteor.call('evolveGeneration', selecteds_ids, function(e, r) {
+            Session.set("selected_apron", undefined);
         });
     }
   });
 
-  Template.choice.events({
+  Template.apron.events({
     'click': function () {
-      var selecteds = Session.get("selected_choice");
+      var selecteds = Session.get("selected_apron");
       if(selecteds === undefined) {
           selecteds = {};
           selecteds[this._id] = true;
-          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          Session.set("selected_apron", EJSON.toJSONValue(selecteds));
           return;
       }
       if(this._id in selecteds) {
           delete selecteds[this._id];
-          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          Session.set("selected_apron", EJSON.toJSONValue(selecteds));
           return;
       }
       if(Object.keys(selecteds).length < _SELECTIONMAX) {
           selecteds[this._id] = true;
-          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          Session.set("selected_apron", EJSON.toJSONValue(selecteds));
           return;
       }
     }
@@ -63,42 +64,48 @@ if (Meteor.isClient) {
 
   Template.controls.events({
     'click button.reset': function () {
-       Meteor.call('initChoiceNames');
-       Session.set("selected_choice", undefined);
+       Meteor.call('initPopulation');
+       Session.set("selected_apron", undefined);
     }
   });
 }
 
-// On server startup, create some choices if the database is empty.
+// On server startup, create some aprons if the database is empty.
 if (Meteor.isServer) {
 
 var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
 
   Meteor.methods({
-      initChoiceNames: function() {
-          Choices.remove({});
+      initPopulation: function() {
+          _POPULATIONSIZE = myjson.designs.length;
+          Aprons.remove({});
           for (var i = 0; i < myjson.designs.length; i++) {
-            Choices.insert({name: myjson.designs[i].name, generation: 1});
+            Aprons.insert({name: myjson.designs[i].name, generation: 1});
           }
       },
-      shuffleChoiceNames: function() {
-          var choicelen = Choices.find().count();
-          Choices.find({}, {sort: {name: 1}}).forEach(function(post) {
-            var randChoice = Choices.findOne({}, {sort: {name: 1}, skip: randomIntInterval(0, choicelen-1)});
+
+      evolveGeneration: function(fittest_ids) {
+          var apronlen = Aprons.find().count();
+
+          var fittest = []
+            fittest_ids.forEach(function(thisfit) {
+                fittest.push(Aprons.findOne({_id: thisfit}));
+            });
+          console.log(fittest);
+
+          Aprons.find({}, {sort: {name: 1}}).forEach(function(post) {
+            var randApron = Aprons.findOne({}, {sort: {name: 1}, skip: randomIntInterval(0, apronlen-1)});
             var p1 = post.name.slice(0,post.name.length / 2);
-            var p2 = randChoice.name.slice(randChoice.name.length / 2);
-            console.log("---");
-            console.log(post.name);
-            console.log(p2 + p1);
-            Choices.update(post, {$set: {name: p2 + p1}, $inc: {generation: 1}});
+            var p2 = randApron.name.slice(randApron.name.length / 2);
+            Aprons.update(post, {$set: {name: p2 + p1}, $inc: {generation: 1}});
           });
       },
   });
 
   Meteor.startup(function () {
-    if (Choices.find().count() === 0) {
-      Meteor.call('initChoiceNames');
+    if (Aprons.find().count() === 0) {
+      Meteor.call('initPopulation');
     }
   });
 }

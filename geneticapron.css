@@ -14,7 +14,7 @@ body {
     margin: 0 auto;
 }
 
-.choice {
+.apron {
     cursor: pointer;
     padding: 5px 10px;
     margin: 5px;
@@ -24,13 +24,13 @@ body {
     float: left;
 }
 
-.choice .name {
+.apron .name {
     display: inline-block;
     width: 70%;
     font-size: 1.6em;
 }
 
-.choice .score {
+.apron .score {
     display: inline-block;
     width: 28%;
     text-align: right;
@@ -39,10 +39,10 @@ body {
     color: #777;
 }
 
-.choice.selected {
+.apron.selected {
     background-color: #AFA;
 }
-.choice.selected .score {
+.apron.selected .score {
     color: black;
 }
 

@@ -12,8 +12,8 @@
 
 <template name="catalog">
   <div class="catalog">
-    {{#each choices}}
-      {{> choice}}
+    {{#each aprons}}
+      {{> apron}}
     {{/each}}
   </div>
 
@@ -27,8 +27,8 @@
   {{/if}}
 </template>
 
-<template name="choice">
-  <div class="choice {{selected}}">
+<template name="apron">
+  <div class="apron {{selected}}">
     <div class="image">{{image}}</div>
     <div class="name">{{name}}</div>
     <div class="generation">gen: {{generation}}</div>
