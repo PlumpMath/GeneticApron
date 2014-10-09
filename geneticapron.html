@@ -1,45 +1,60 @@
 <head>
-  <title>Leaderboard</title>
+  <title>Ebola IGA</title>
   <meta name="viewport" content="width=device-width, user-scalable=no">
 </head>
 
 <body>
-    <div class="outer">
-        {{> catalog}}
-        {{> controls}}
+    <div class="header">
+        PPE apron x Interactive Genetic Algorithm
     </div>
+    {{> generation_controls}}
+    <div class="catalog-wrapper">
+        {{> catalog}}
+    </div>
+    {{> breed_controls}}
 </body>
 
 <template name="catalog">
+
   <div class="catalog">
     {{#each aprons}}
       {{> apron}}
     {{/each}}
   </div>
 
-  {{#if selected_names}}
-  <div class="details">
-    <div class="name">{{selected_names}}</div>
-    <button class="select">Select Design</button>
+</template>
+
+
+<template name="generation_controls">
+  <div class="menu">
+      <div class="generation_controls">
+        <div class="generation_info">Generation: {{generation}}</div> 
+        <button class="control reset">Reset generations</button>
+      </div>
   </div>
-  {{else}}
-  <div class="none">Click a chromomsome/design to select</div>
-  {{/if}}
+</template>
+
+<template name="breed_controls">
+      <div class="breed_controls">
+          {{#if selected_names}}
+            <button class="select breed">Breed Choices</button>
+          <div class="details">
+            <div class="name">{{selected_names}}</div>
+          </div>
+          {{else}}
+          <div class="none">Click chromomsomes/designs to cross-breed and evolve</div>
+          {{/if}}
+      </div>
 </template>
 
 <template name="apron">
   <div class="apron {{selected}}">
+    <div class="image" style="background-color:{{chromosome_color}};">{{image}}</div>
     <div class="chromosome-color" style="background-color:{{chromosome_color}};">color: {{chromosome_color}}</div>
-    <div class="image">{{image}}</div>
     <div class="name">{{name}}</div>
     <div class="generation">generation: {{generation}}</div>
     <div class="chromosome">chromosome: {{chromosome}}</div>
   </div>
 </template>
 
-<template name="controls">
-    <div class="controls">
-        <button class="control reset">Reset</button>
-    </div>
-</template>
 

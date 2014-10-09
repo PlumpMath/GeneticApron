@@ -1,7 +1,7 @@
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 200;
-    margin: 50px 0;
+    margin: 20px;
     padding: 0;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -10,6 +10,10 @@ body {
     user-select: none;
 }
 
+.header {
+    font-size: 2em;
+    font-weight: bold;
+}
 .outer {
     margin: 0 auto;
 }
@@ -22,15 +26,24 @@ body {
     padding: 5px 10px;
     margin: 5px;
     width: 150px;
-    height: 150px;
+    height: 250px;
     background-color: #CCC;
     float: left;
+}
+
+.apron .image {
+    background-image: url('ebola_suit_transp.png');
+    background-repeat:no-repeat;
+    background-size:contain;
+    background-position:center;
+    width: 150px;
+    height: 150px;
 }
 
 .apron .name {
     display: inline-block;
     width: 70%;
-    font-size: 1.6em;
+    font-size: 1em;
 }
 
 .apron .chromosome {
@@ -47,8 +60,9 @@ body {
 }
 
 .apron.selected {
-    border: 5px solid #AFA;
-    margin: 0px;
+    background-color: #AFA;
+    /*border: 5px solid #AFA;
+    margin: 0px; */
 }
 .apron.selected .score {
     color: black;
@@ -57,12 +71,22 @@ body {
 .apron .chromosome-color {
     padding: 2px 5px;
 }
+
+.menu {
+    margin:10px 10px;
+    height: 40px;
+}
+
+.select.breed {
+    float: left;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
 .details, .none {
     font-weight: bold;
-    font-size: 2em;
+    font-size: 1.4em;
     border-color: #ccc;
     border-width: 4px;
-    margin: 50px 10px;
     padding: 10px 0;
 }
 
@@ -73,4 +97,9 @@ body {
 .inc {
     margin: 5px 0;
     font-size: 0.6em;
+}
+
+.generation_controls .generation_info {
+   float: left;
+   margin-right: 10px; 
 }
