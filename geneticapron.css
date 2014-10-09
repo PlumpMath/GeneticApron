@@ -1,7 +1,7 @@
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 200;
-    margin: 20px;
+    margin: 50px;
     padding: 0;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -10,10 +10,25 @@ body {
     user-select: none;
 }
 
+.top-menu {
+    position: fixed;
+    width: 260px;
+    top: 0px;
+    left: 0px;
+    padding: 20px;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    font-size:0.9em;
+}
+
+.catalog-wrapper {
+    margin-left: 300px;
+}
+
 .header h2 {
     font-size: 2em;
     font-weight: bold;
-    margin: 0px 0px;
+    margin: 0px 15px 0px 0px;
 }
 .outer {
     margin: 0 auto;
@@ -82,13 +97,13 @@ font-weight: bold;
 
 .menu {
     margin:10px 10px;
-    height: 40px;
 }
 
 .select.breed {
-    float: left;
     font-size: 1.2em;
     margin-right: 10px;
+    font-weight: bold;
+    color: #6A4;
 }
 .details, .none {
     font-weight: bold;
@@ -99,7 +114,7 @@ font-weight: bold;
 }
 
 .none {
-    color: #777;
+    color: #6A4;
 }
 
 .inc {
@@ -110,4 +125,5 @@ font-weight: bold;
 .generation_controls .generation_info {
    float: left;
    margin-right: 10px; 
+   font-weight: bold;
 }
