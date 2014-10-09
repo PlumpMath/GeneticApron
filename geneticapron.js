@@ -1,14 +1,13 @@
+var _SELECTION_MAX = 3;
+var _POPULATION_SIZE;
+var _MUTATION_PROBABILITY = 0.1;
+var _END_GENERATIONS = 10.0;
+var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
+
 // Set up a collection to contain apron information. On the server,
 // it is backed by a MongoDB collection named "aprons".
-var _SELECTIONMAX = 2;
-var _POPULATIONSIZE;
-
 Aprons = new Mongo.Collection("aprons");
-/* 
- * simple example: two buttons: -1 and +1 
- * when number is chosen, add value to running tally
- * then show -3, +5, etc
- */
+
 if (Meteor.isClient) {
   Template.catalog.aprons = function () {
     return Aprons.find({}, {sort: { name: 1}});
@@ -16,17 +15,16 @@ if (Meteor.isClient) {
 
   Template.catalog.selected_names = function () {
     var selecteds = EJSON.fromJSONValue(Session.get("selected_apron"));
+    if(selecteds === undefined) return "";
     var allaprons = [];
     for (var key in selecteds) {
-        allaprons.push(Aprons.findOne({"_id":key}).name);
+        allaprons.push(Aprons.findOne({_id:key}).name);
     }
     return allaprons.join(", ");
   };
   
   Template.apron.chromosome_color = function () {
       return "#" + binaryToHex(this.chromosome).result;
-      
-      return "hey";
   };
 
   Template.apron.selected = function () {
@@ -39,9 +37,8 @@ if (Meteor.isClient) {
   Template.catalog.events({
     'click button.select': function () {
         var selecteds_ids = Object.keys(EJSON.fromJSONValue(Session.get("selected_apron")));
-        console.log(selecteds_ids);
+        Session.set("selected_apron", undefined);
         var ret = Meteor.call('evolveGeneration', selecteds_ids, function(e, r) {
-            Session.set("selected_apron", undefined);
         });
     }
   });
@@ -60,7 +57,7 @@ if (Meteor.isClient) {
           Session.set("selected_apron", EJSON.toJSONValue(selecteds));
           return;
       }
-      if(Object.keys(selecteds).length < _SELECTIONMAX) {
+      if(Object.keys(selecteds).length < _SELECTION_MAX) {
           selecteds[this._id] = true;
           Session.set("selected_apron", EJSON.toJSONValue(selecteds));
           return;
@@ -81,10 +78,10 @@ if (Meteor.isServer) {
 
 var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
+  _POPULATION_SIZE = myjson.designs.length; // fix this  
 
   Meteor.methods({
       initPopulation: function() {
-          _POPULATIONSIZE = myjson.designs.length;
           Aprons.remove({});
           for (var i = 0; i < myjson.designs.length; i++) {
             Aprons.insert({name: myjson.designs[i].name, generation: 1, chromosome: myjson.designs[i].chromosome});
@@ -94,18 +91,50 @@ var myjson = {};
       evolveGeneration: function(fittest_ids) {
           var apronlen = Aprons.find().count();
 
-          var fittest = []
+          var fittest = [];
             fittest_ids.forEach(function(thisfit) {
                 fittest.push(Aprons.findOne({_id: thisfit}));
             });
-          console.log(fittest);
 
-          Aprons.find({}, {sort: {name: 1}}).forEach(function(post) {
-            var randApron = Aprons.findOne({}, {sort: {name: 1}, skip: randomIntInterval(0, apronlen-1)});
-            var p1 = post.name.slice(0,post.name.length / 2);
-            var p2 = randApron.name.slice(randApron.name.length / 2);
-            Aprons.update(post, {$set: {name: p2 + p1}, $inc: {generation: 1}});
-          });
+          // CREATE NEW GENERATION  
+          var newGeneration = [];
+          for(var i = 0; i < _POPULATION_SIZE; i++) {
+
+             var nextGen = Aprons.findOne({}).generation + 1;
+
+             //SELECT TWO PARENTS (assume that we're choosing more than one)
+             fittest = shuffle(fittest);
+             var parentA = fittest[0];
+             var parentB = fittest[1];
+             
+             //TWO-POINT CROSSOVER
+             splicePoint = randomIntInterval(0, parentA.chromosome.length - 1);
+             var childOne = parentA.chromosome.slice(0, splicePoint) + parentB.chromosome.slice(splicePoint);
+
+             //MUTATION (BIT-FLIP)
+             var mutatedChildOne = ""
+             for(var j = 0; j < childOne.length; j++) {
+                var thisRand = Math.random();
+                if((_MUTATION_PROBABILITY - (_MUTATION_REDUCTION_RATE * nextGen)) > thisRand) {
+                    mutatedChildOne += (childOne[j] == "0") ? "1" : "0";
+                } else {
+                    mutatedChildOne += (childOne[j] == "0") ? "0" : "1";
+                }
+             }
+
+             newGeneration.push(mutatedChildOne);
+          }
+
+
+
+
+          Aprons.remove({});
+
+          for (var i = 0; i < newGeneration.length; i++) {
+
+             Aprons.insert({name: chromosomeToName(newGeneration[i]), generation: nextGen, chromosome: newGeneration[i]});
+          }
+
       },
   });
 
@@ -114,6 +143,30 @@ var myjson = {};
       Meteor.call('initPopulation');
     }
   });
+}
+
+
+function chromosomeToName(c) {
+    return "#" + binaryToHex(c).result;
+}
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
 
 function randomIntInterval(min,max)
