@@ -1,5 +1,6 @@
 // Set up a collection to contain choice information. On the server,
 // it is backed by a MongoDB collection named "choices".
+var _SELECTIONMAX = 2;
 
 Choices = new Mongo.Collection("choices");
 /* 
@@ -12,34 +13,58 @@ if (Meteor.isClient) {
     return Choices.find({}, {sort: { name: 1}});
   };
 
-  Template.catalog.selected_name = function () {
-    var choice = Choices.findOne(Session.get("selected_choice"));
-    return choice && choice.name;
+  Template.catalog.selected_names = function () {
+    var selecteds = EJSON.fromJSONValue(Session.get("selected_choice"));
+    var allchoices = [];
+    for (var key in selecteds) {
+        allchoices.push(Choices.findOne({"_id":key}).name);
+    }
+    return allchoices.join(", ");
   };
 
   Template.choice.selected = function () {
-    return Session.equals("selected_choice", this._id) ? "selected" : '';
+    var selecteds = EJSON.fromJSONValue(Session.get("selected_choice"));
+    if(selecteds === undefined)
+        return "";
+    return (this._id in selecteds) ? "selected" : '';
   };
 
   Template.catalog.events({
     'click button.select': function () {
+        Session.set("selected_choice", undefined);
 //        Choices.update(Session.get("selected_choice"), {$inc: {score: 5}});
         var ret = Meteor.call('shuffleChoiceNames', function(e, r) {
-            console.log(r);
+//            console.log(r);
         });
     }
   });
 
   Template.choice.events({
     'click': function () {
-      console.log(this);
-      Session.set("selected_choice", this._id);
+      var selecteds = Session.get("selected_choice");
+      if(selecteds === undefined) {
+          selecteds = {};
+          selecteds[this._id] = true;
+          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          return;
+      }
+      if(this._id in selecteds) {
+          delete selecteds[this._id];
+          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          return;
+      }
+      if(Object.keys(selecteds).length < _SELECTIONMAX) {
+          selecteds[this._id] = true;
+          Session.set("selected_choice", EJSON.toJSONValue(selecteds));
+          return;
+      }
     }
   });
 
   Template.controls.events({
     'click button.reset': function () {
-       Meteor.call('reinitChoiceNames');
+       Meteor.call('initChoiceNames');
+       Session.set("selected_choice", undefined);
     }
   });
 }
@@ -51,10 +76,10 @@ var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
 
   Meteor.methods({
-      reinitChoiceNames: function() {
+      initChoiceNames: function() {
           Choices.remove({});
           for (var i = 0; i < myjson.designs.length; i++) {
-            Choices.insert({name: myjson.designs[i].name});
+            Choices.insert({name: myjson.designs[i].name, generation: 1});
           }
       },
       shuffleChoiceNames: function() {
@@ -73,13 +98,7 @@ var myjson = {};
 
   Meteor.startup(function () {
     if (Choices.find().count() === 0) {
-      var names = ["Button 1",
-                   "Button 2",
-                   "Button 3"];
-      for (var i = 0; i < names.length; i++)
-        Choices.insert({name: names[i]});
-    }
-    if (Choices.find().count() === 0) {
+      Meteor.call('initChoiceNames');
     }
   });
 }

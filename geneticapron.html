@@ -17,9 +17,9 @@
     {{/each}}
   </div>
 
-  {{#if selected_name}}
+  {{#if selected_names}}
   <div class="details">
-    <div class="name">{{selected_name}}</div>
+    <div class="name">{{selected_names}}</div>
     <button class="select">Select Design</button>
   </div>
   {{else}}
@@ -31,6 +31,7 @@
   <div class="choice {{selected}}">
     <div class="image">{{image}}</div>
     <div class="name">{{name}}</div>
+    <div class="generation">gen: {{generation}}</div>
   </div>
 </template>
 
