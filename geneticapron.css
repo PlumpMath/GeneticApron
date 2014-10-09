@@ -14,6 +14,9 @@ body {
     margin: 0 auto;
 }
 
+.catalog {
+    overflow: hidden;
+}
 .apron {
     cursor: pointer;
     padding: 5px 10px;
@@ -30,6 +33,10 @@ body {
     font-size: 1.6em;
 }
 
+.apron .chromosome {
+    font-size: 0.7em;
+}
+
 .apron .score {
     display: inline-block;
     width: 28%;
@@ -40,12 +47,16 @@ body {
 }
 
 .apron.selected {
-    background-color: #AFA;
+    border: 5px solid #AFA;
+    margin: 0px;
 }
 .apron.selected .score {
     color: black;
 }
 
+.apron .chromosome-color {
+    padding: 2px 5px;
+}
 .details, .none {
     font-weight: bold;
     font-size: 2em;

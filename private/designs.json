@@ -1,13 +1,12 @@
 {
   "designs": [
-    { "chromosome": "1000", "name": "noisy" },
-    { "chromosome": "1001", "name": "pinstriped" },
-    { "chromosome": "1100", "name": "polo" },
-    { "chromosome": "1110", "name": "venetian" },
-    { "chromosome": "1011", "name": "striped" },
-    { "chromosome": "1010", "name": "polkadotted" },
-    { "chromosome": "1000", "name": "solid" },
-    { "chromosome": "0111", "name": "gradient" }
+    { "chromosome": "110111000001010000111100", "name": "crimson" },
+    { "chromosome": "011001001001010111101101", "name": "cornflower blue" },
+    { "chromosome": "010010001101000111001100", "name": "turquoise" },
+    { "chromosome": "111111111101011100000000", "name": "gold" },
+    { "chromosome": "111011100111011000000000", "name": "orange" },
+    { "chromosome": "110000001100000011000000", "name": "silver" },
+    { "chromosome": "101100111110111000111010", "name": "olive drab" }
   ]
 }
  

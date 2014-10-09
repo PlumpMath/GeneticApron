@@ -29,9 +29,11 @@
 
 <template name="apron">
   <div class="apron {{selected}}">
+    <div class="chromosome-color" style="background-color:{{chromosome_color}};">color: {{chromosome_color}}</div>
     <div class="image">{{image}}</div>
     <div class="name">{{name}}</div>
-    <div class="generation">gen: {{generation}}</div>
+    <div class="generation">generation: {{generation}}</div>
+    <div class="chromosome">chromosome: {{chromosome}}</div>
   </div>
 </template>
 
