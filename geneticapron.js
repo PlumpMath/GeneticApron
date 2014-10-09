@@ -104,7 +104,7 @@ var myjson = {};
       initPopulation: function() {
           Aprons.remove({});
           for (var i = 0; i < myjson.designs.length; i++) {
-            Aprons.insert({name: myjson.designs[i].name, generation: 1, chromosome: myjson.designs[i].chromosome});
+            Aprons.insert({name: chromosomeToName(newGeneration[i]), generation: 1, chromosome: myjson.designs[i].chromosome});
           }
       },
 
