@@ -24,6 +24,7 @@ if (Meteor.isClient) {
   };
 
   Template.generation_controls.generation = function() {
+    if(Aprons.findOne({}) === undefined) return 1;
     return Aprons.findOne({}).generation;
   };
   
@@ -31,7 +32,7 @@ if (Meteor.isClient) {
       var stripe = this.chromosome.slice(0,1);
       var color = "#" + binaryToHex(this.chromosome.slice(1, 25)).result;
       var color2 = "#" + binaryToHex(this.chromosome.slice(25, 49)).result;
-console.log(this.chromosome.slice(49));
+//console.log(this.chromosome.slice(49));
       var stripethickness = binaryToDec(this.chromosome.slice(49, 54));
       var striperotation = binaryToDec(this.chromosome.slice(54, 62)) / 256.0 * 180;
 
@@ -39,7 +40,7 @@ console.log(this.chromosome.slice(49));
         return "background-color:" + color;
       var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
 
-      console.log(thisstyle);
+//      console.log(thisstyle);
       return thisstyle;
   };
 
