@@ -1,7 +1,6 @@
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 200;
-    margin: 50px;
     padding: 0;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -10,19 +9,59 @@ body {
     user-select: none;
 }
 
-.top-menu {
-    position: fixed;
-    width: 260px;
-    top: 0px;
-    left: 0px;
-    padding: 20px;
-    height: 100%;
-    background-color: rgb(255, 255, 255);
-    font-size:0.9em;
+@media all and (max-width: 480px) {
+    body {
+        margin: 10px;
+    }
+    .top-menu {
+        width: 100%;
+    }
+    .header .description {
+        margin-top: 100px;
+    }
+    .title, .menu, .breed_controls {
+        background-color: white;
+        position: fixed;
+        width: 100%;
+    }
+    .title {
+        top: 0px;
+    }
+    .menu {
+        margin: 0px !important;
+        top: 35px;
+    }
+    .breed_controls {
+        top: 55px;
+    }
+    .apron {
+        width: 170px !important;
+    }
+
 }
 
-.catalog-wrapper {
-    margin-left: 300px;
+@media all and (min-width: 480px) {
+    body {
+        margin: 20px;
+    }
+    .top-menu {
+        position: fixed;
+        width: 260px;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        padding: 20px;
+    }
+    .catalog-wrapper {
+        margin-left: 300px;
+    }
+
+}
+
+
+.top-menu {
+    background-color: rgb(255, 255, 255);
+    font-size:0.9em;
 }
 
 .header h2 {
@@ -52,8 +91,8 @@ body {
     background-repeat:no-repeat;
     background-size:contain;
     background-position:center; */
-    width: 200px;
-    height: 200px;
+    width: 170px;
+    height: 170px;
 }
 
 .apron .image img {
