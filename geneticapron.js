@@ -1,4 +1,4 @@
-var _SELECTION_MAX = 4;
+var _SELECTION_MAX = 5;
 var _POPULATION_SIZE = 40;
 var _MUTATION_PROBABILITY = 0.1;
 var _END_GENERATIONS = 20.0;
@@ -10,7 +10,7 @@ Aprons = new Mongo.Collection("aprons");
 
 if (Meteor.isClient) {
   Template.catalog.aprons = function () {
-    return Aprons.find({}, {sort: { name: 1}});
+    return Aprons.find({}, {sort: { rand: 1}});
   };
 
   Template.breed_controls.selected_names = function () {
@@ -98,13 +98,20 @@ if (Meteor.isServer) {
 
 var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
-//  _POPULATION_SIZE = myjson.designs.length; // fix this  
 
   Meteor.methods({
       initPopulation: function() {
           Aprons.remove({});
           for (var i = 0; i < myjson.designs.length; i++) {
             Aprons.insert({name: chromosomeToName(myjson.designs[i].chromosome), generation: 1, chromosome: myjson.designs[i].chromosome});
+          }
+          var chromosomeLength = Aprons.findOne({}).chromosome.length;
+          for (var i = 0; i < _POPULATION_SIZE -  myjson.designs.length; i++) {
+              thisChr = "";
+              for( var j =0; j < chromosomeLength; j++) {
+                  thisChr += randomIntInterval(0, 1);
+              }
+              Aprons.insert({name: chromosomeToName(thisChr), generation: 1, chromosome: thisChr});
           }
       },
 
