@@ -1,0 +1,13 @@
+{
+  "designs": [
+    { "chromosome": "1000", "name": "noisy" },
+    { "chromosome": "1001", "name": "pinstriped" },
+    { "chromosome": "1100", "name": "polo" },
+    { "chromosome": "1110", "name": "venetian" },
+    { "chromosome": "1011", "name": "striped" },
+    { "chromosome": "1010", "name": "polkadotted" },
+    { "chromosome": "1000", "name": "solid" },
+    { "chromosome": "0111", "name": "gradient" }
+  ]
+}
+ 

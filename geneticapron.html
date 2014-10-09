@@ -1,0 +1,42 @@
+<head>
+  <title>Leaderboard</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+
+<body>
+  <div class="outer">
+    {{> catalog}}
+  </div>
+  <div class="controls">
+    {{> controls}}
+  </div>
+</body>
+
+<template name="catalog">
+  <div class="catalog">
+    {{#each choices}}
+      {{> choice}}
+    {{/each}}
+  </div>
+
+  {{#if selected_name}}
+  <div class="details">
+    <div class="name">{{selected_name}}</div>
+    <button class="select">Select Design</button>
+  </div>
+  {{else}}
+  <div class="none">Click a chromomsome/design to select</div>
+  {{/if}}
+</template>
+
+<template name="choice">
+  <div class="choice {{selected}}">
+    <span class="name">{{name}}</span>
+    <span class="score">{{score}}</span>
+  </div>
+</template>
+
+<template name="controls">
+    <button class="control reset">Reset</button>
+</template>
+
