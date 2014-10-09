@@ -27,7 +27,7 @@ body {
     padding: 5px 5px;
     margin: 5px;
     width: 200px;
-    height: 250px;
+    height: 260px;
     background-color: #DDD;
     float: left;
 }
@@ -55,6 +55,7 @@ font-weight: bold;
 
 .apron .chromosome {
     font-size: 0.7em;
+    word-wrap: break-word;
 }
 
 .apron .score {
