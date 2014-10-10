@@ -32,7 +32,6 @@ if (Meteor.isClient) {
       var stripe = this.chromosome.slice(0,1);
       var color = "#" + binaryToHex(this.chromosome.slice(1, 25)).result;
       var color2 = "#" + binaryToHex(this.chromosome.slice(25, 49)).result;
-//console.log(this.chromosome.slice(49));
       var stripethickness = binaryToDec(this.chromosome.slice(49, 54));
       var striperotation = binaryToDec(this.chromosome.slice(54, 62)) / 256.0 * 180;
 
@@ -40,7 +39,6 @@ if (Meteor.isClient) {
         return "background-color:" + color;
       var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
 
-//      console.log(thisstyle);
       return thisstyle;
   };
 
