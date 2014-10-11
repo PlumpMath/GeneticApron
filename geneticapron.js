@@ -8,6 +8,8 @@ var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 // it is backed by a MongoDB collection named "aprons".
 Aprons = new Mongo.Collection("aprons");
 
+//Aprons = []
+
 if (Meteor.isClient) {
   Template.catalog.aprons = function () {
     return Aprons.find({}, {sort: { rand: 1}});
@@ -29,17 +31,7 @@ if (Meteor.isClient) {
   };
   
   Template.apron.chromosome_style = function () {
-      var stripe = this.chromosome.slice(0,1);
-      var color = "#" + binaryToHex(this.chromosome.slice(1, 25)).result;
-      var color2 = "#" + binaryToHex(this.chromosome.slice(25, 49)).result;
-      var stripethickness = binaryToDec(this.chromosome.slice(49, 54));
-      var striperotation = binaryToDec(this.chromosome.slice(54, 62)) / 256.0 * 180;
-
-      if(stripe == "0")    
-        return "background-color:" + color;
-      var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
-
-      return thisstyle;
+      return chromosomeToStyle(this.chromosome);
   };
 
   Template.apron.selected = function () {
@@ -171,6 +163,24 @@ var myjson = {};
   });
 }
 
+
+function chromosomeToStyle(chromosome) {
+      var stripe = chromosome.slice(0,1);
+      var color = "#" + binaryToHex(chromosome.slice(1, 25)).result;
+      var color2 = "#" + binaryToHex(chromosome.slice(25, 49)).result;
+      var stripethickness = binaryToDec(chromosome.slice(49, 54));
+      var striperotation = binaryToDec(chromosome.slice(54, 62)) / 256.0 * 180;
+
+      if(stripe == "0")    
+        return "background-color:" + color;
+      var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
+
+      return thisstyle;
+
+}
+function supportsLocalStorage() {
+        return ('localStorage' in window) && window['localStorage'] !== null;
+}
 
 function chromosomeToName(c) {
     return "#" + binaryToHex(c.slice(1,25)).result;
