@@ -7,12 +7,21 @@ var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 // Set up a collection to contain apron information. On the server,
 // it is backed by a MongoDB collection named "aprons".
 Aprons = new Mongo.Collection("aprons");
+localAprons = new Mongo.Collection(null);
 
 //Aprons = []
 
 if (Meteor.isClient) {
+
+  Meteor.startup(function () {
+    if (localAprons.find().count() === 0) {
+       localInitPopulation();
+    }
+  });
+
+
   Template.catalog.aprons = function () {
-    return Aprons.find({}, {sort: { rand: 1}});
+    return localAprons.find({}, {sort: { rand: 1}});
   };
 
   Template.breed_controls.selected_names = function () {
@@ -20,14 +29,14 @@ if (Meteor.isClient) {
     if(selecteds === undefined) return "";
     var allaprons = [];
     for (var key in selecteds) {
-        allaprons.push(Aprons.findOne({_id:key}).name);
+        allaprons.push(localAprons.findOne({_id:key}).name);
     }
     return allaprons.join(", ");
   };
 
   Template.generation_controls.generation = function() {
-    if(Aprons.findOne({}) === undefined) return 1;
-    return Aprons.findOne({}).generation;
+    if(localAprons.findOne({}) === undefined) return 1;
+    return localAprons.findOne({}).generation;
   };
   
   Template.apron.chromosome_style = function () {
@@ -49,8 +58,7 @@ if (Meteor.isClient) {
     'click button.select': function () {
         var selecteds_ids = Object.keys(EJSON.fromJSONValue(Session.get("selected_apron")));
         Session.set("selected_apron", undefined);
-        var ret = Meteor.call('evolveGeneration', selecteds_ids, function(e, r) {
-        });
+        evolveGeneration(selecteds_ids);
     }
   });
 
@@ -78,9 +86,8 @@ if (Meteor.isClient) {
 
   Template.generation_controls.events({
     'click button.reset': function () {
-       Meteor.call('initPopulation');
-       Session.set("selected_apron", undefined);
-    }
+       localInitPopulation();
+     }
   });
 }
 
@@ -91,78 +98,80 @@ var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
 
   Meteor.methods({
-      initPopulation: function() {
-          Aprons.remove({});
+      initPopulationFromJSON: function() {
+          var initGen = [];
           for (var i = 0; i < myjson.designs.length; i++) {
-            Aprons.insert({name: chromosomeToName(myjson.designs[i].chromosome), generation: 1, chromosome: myjson.designs[i].chromosome});
+            initGen.push({name: chromosomeToName(myjson.designs[i].chromosome), generation: 1, chromosome: myjson.designs[i].chromosome});
           }
-          var chromosomeLength = Aprons.findOne({}).chromosome.length;
+          var chromosomeLength = initGen[0].chromosome.length;
           for (var i = 0; i < _POPULATION_SIZE -  myjson.designs.length; i++) {
               thisChr = "";
               for( var j =0; j < chromosomeLength; j++) {
                   thisChr += randomIntInterval(0, 1);
               }
-              Aprons.insert({name: chromosomeToName(thisChr), generation: 1, chromosome: thisChr});
+              initGen.push({name: chromosomeToName(thisChr), generation: 1, chromosome: thisChr});
           }
+          return initGen;
       },
 
-      evolveGeneration: function(fittest_ids) {
-          var apronlen = Aprons.find().count();
-
-          var fittest = [];
-            fittest_ids.forEach(function(thisfit) {
-                fittest.push(Aprons.findOne({_id: thisfit}));
-            });
-
-          // CREATE NEW GENERATION  
-          var newGeneration = [];
-          for(var i = 0; i < _POPULATION_SIZE; i++) {
-
-             var nextGen = Aprons.findOne({}).generation + 1;
-
-             //SELECT TWO PARENTS (assume that we're choosing more than one)
-             fittest = shuffle(fittest);
-             var parentA = fittest[0];
-             var parentB = fittest[1];
-             
-             //TWO-POINT CROSSOVER
-             splicePoint = randomIntInterval(0, parentA.chromosome.length - 1);
-             var childOne = parentA.chromosome.slice(0, splicePoint) + parentB.chromosome.slice(splicePoint);
-
-             //MUTATION (BIT-FLIP)
-             var mutatedChildOne = ""
-             for(var j = 0; j < childOne.length; j++) {
-                var thisRand = Math.random();
-                if((_MUTATION_PROBABILITY - (_MUTATION_REDUCTION_RATE * nextGen)) > thisRand) {
-                    mutatedChildOne += (childOne[j] == "0") ? "1" : "0";
-                } else {
-                    mutatedChildOne += (childOne[j] == "0") ? "0" : "1";
-                }
-             }
-
-             newGeneration.push(mutatedChildOne);
-          }
-
-
-
-
-          Aprons.remove({});
-
-          for (var i = 0; i < newGeneration.length; i++) {
-
-             Aprons.insert({name: chromosomeToName(newGeneration[i]), generation: nextGen, chromosome: newGeneration[i]});
-          }
-
-      },
   });
 
-  Meteor.startup(function () {
-    if (Aprons.find().count() === 0) {
-      Meteor.call('initPopulation');
-    }
-  });
 }
 
+function localInitPopulation() {
+   Meteor.call('initPopulationFromJSON', function(e, r) {
+       localAprons.remove({});
+       for (var i = 0; i < r.length; i++) {
+           localAprons.insert(r[i]);
+       }
+   });
+   Session.set("selected_apron", undefined);
+}
+
+function evolveGeneration(fittest_ids) {
+  var apronlen = localAprons.find().count();
+
+  var fittest = [];
+    fittest_ids.forEach(function(thisfit) {
+        fittest.push(localAprons.findOne({_id: thisfit}));
+    });
+
+  // CREATE NEW GENERATION  
+  var newGeneration = [];
+  for(var i = 0; i < _POPULATION_SIZE; i++) {
+
+     var nextGen = localAprons.findOne({}).generation + 1;
+
+     //SELECT TWO PARENTS (assume that we're choosing more than one)
+     fittest = shuffle(fittest);
+     var parentA = fittest[0];
+     var parentB = fittest[1];
+     
+     //TWO-POINT CROSSOVER
+     splicePoint = randomIntInterval(0, parentA.chromosome.length - 1);
+     var childOne = parentA.chromosome.slice(0, splicePoint) + parentB.chromosome.slice(splicePoint);
+
+     //MUTATION (BIT-FLIP)
+     var mutatedChildOne = ""
+     for(var j = 0; j < childOne.length; j++) {
+        var thisRand = Math.random();
+        if((_MUTATION_PROBABILITY - (_MUTATION_REDUCTION_RATE * nextGen)) > thisRand) {
+            mutatedChildOne += (childOne[j] == "0") ? "1" : "0";
+        } else {
+            mutatedChildOne += (childOne[j] == "0") ? "0" : "1";
+        }
+     }
+
+     newGeneration.push(mutatedChildOne);
+  }
+
+  localAprons.remove({});
+
+  for (var i = 0; i < newGeneration.length; i++) {
+     localAprons.insert({name: chromosomeToName(newGeneration[i]), generation: nextGen, chromosome: newGeneration[i]});
+  }
+
+}
 
 function chromosomeToStyle(chromosome) {
       var stripe = chromosome.slice(0,1);
