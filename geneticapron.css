@@ -91,10 +91,6 @@ body {
 }
 
 .apron .image {
-/*    background-image: url('ebola_suit_transp.png');
-    background-repeat:no-repeat;
-    background-size:contain;
-    background-position:center; */
     width: 200px;
     height: 200px;
 }

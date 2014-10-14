@@ -166,22 +166,78 @@ function evolveGeneration(fittest_ids) {
 }
 
 function chromosomeToStyle(chromosome) {
-      var stripe = chromosome.slice(0,1);
-      var color = "#" + binaryToHex(chromosome.slice(1, 25)).result;
-      var color2 = "#" + binaryToHex(chromosome.slice(25, 49)).result;
-      var stripethickness = binaryToDec(chromosome.slice(49, 54));
-      var striperotation = binaryToDec(chromosome.slice(54, 62)) / 256.0 * 180;
+      var chromosomeSequence = [
+        { "name": "stripeBool", "bits": 1, "type": "bool" },
+        { "name": "color1",     "bits": 24, "type": "rgb" },
+        { "name": "color2",     "bits": 24, "type": "rgb" },
+        { "name": "thickness",  "bits": 5, "type": "int", "min": 0, "max": 20},
+        { "name": "angle",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"}];
 
-      if(stripe == "0")    
-        return "background-color:" + color;
-      var thisstyle=  'background: repeating-linear-gradient(' + striperotation + 'deg,' + color + ',' + color + ' ' + stripethickness + 'px,' + color2 + ' ' + stripethickness + 'px,' + color2 + ' ' + (stripethickness * 2) + 'px);';
+      var genes = chromosomeToGenes(chromosome, chromosomeSequence);
 
-      return thisstyle;
+      if(genes.stripeBool == false) {    
+        return "background-color:" + genes.color1;
+      } 
+      else {
+          var phenotype = 'background: repeating-linear-gradient(' 
+                  + genes.angle + ',' 
+                  + genes.color1 + ',' 
+                  + genes.color1 + ' ' 
+                  + genes.thickness + 'px,' 
+                  + genes.color2 + ' ' + genes.thickness + 'px,' 
+                  + genes.color2 + ' ' + (genes.thickness * 2) + 'px);';
+          console.log(phenotype);
+          return phenotype;
+      }
 
 }
 
 function chromosomeToName(c) {
     return "#" + binaryToHex(c.slice(1,25)).result;
+}
+
+/***** HELPER FUNCTIONS *****/
+function chromosomeToGenes(chromosome, geneSequence) {
+
+      var genes = {};
+
+      var startBit = 0;
+      for (var i = 0; i < geneSequence.length; i++) {
+          var thisSeq = geneSequence[i];
+          var endBit = startBit + thisSeq.bits;
+          var thisGene = chromosome.slice(startBit, endBit);
+          var thisPhenotype;
+
+          console.log(startBit + " to " + endBit + " : " + thisGene);
+
+          switch(thisSeq.type) {
+              case "bool":
+                  thisPhenotype = Boolean(parseInt(thisGene));
+                  break;
+              case "rgb":
+                  thisPhenotype = "#" + binaryToHex(thisGene).result;
+                  break;
+              case "int":
+                  var thisval = binaryToDec(thisGene);
+                  thisval = thisSeq.min + (thisval * 1.0 / Math.pow(2, thisSeq.bits) * (thisSeq.max - thisSeq.min))
+                  thisPhenotype = Math.round(thisval);
+                  if("postfix" in thisSeq) { thisPhenotype += thisSeq.postfix; }
+                  break;
+              case "float":
+                  var thisval = binaryToDec(thisGene);
+                  thisval = thisSeq.min + (thisval * 1.0 / Math.pow(2, thisSeq.bits) * (thisSeq.max - thisSeq.min))
+                  thisPhenotype = thisval;
+                  if("postfix" in thisSeq) { thisPhenotype += thisSeq.postfix; }
+                  break;
+          }
+
+          genes[thisSeq.name] = thisPhenotype;
+
+          startBit = endBit;
+      }
+
+      console.log(genes);
+      return genes; 
 }
 
 function shuffle(array) {
@@ -203,8 +259,7 @@ function shuffle(array) {
   return array;
 }
 
-function randomIntInterval(min,max)
-{
+function randomIntInterval(min,max) {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
