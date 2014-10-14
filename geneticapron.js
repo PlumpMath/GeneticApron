@@ -6,7 +6,6 @@ var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 
 Aprons = new Mongo.Collection("aprons");
 localAprons = new Mongo.Collection(null);
-localGenome = new Mongo.Collection(null);
 
 
 if (Meteor.isClient) {
@@ -87,8 +86,6 @@ if (Meteor.isClient) {
 // On server startup, create some aprons if the database is empty.
 if (Meteor.isServer) {
 
- var myjson = {};
- myjson = JSON.parse(Assets.getText("designs.json"));
 
   Meteor.methods({
 
@@ -97,38 +94,27 @@ if (Meteor.isServer) {
         myjson = JSON.parse(Assets.getText("designs.json"));
         return myjson;
       },
-
-      initPopulationFromJSON: function() {
-          var initGen = [];
-          for (var i = 0; i < myjson.designs.length; i++) {
-            initGen.push({name: chromosomeToName(myjson.designs[i].chromosome), generation: 1, chromosome: myjson.designs[i].chromosome});
-          }
-          var chromosomeLength = initGen[0].chromosome.length;
-          for (var i = 0; i < _POPULATION_SIZE -  myjson.designs.length; i++) {
-              thisChr = "";
-              for( var j =0; j < chromosomeLength; j++) {
-                  thisChr += randomIntInterval(0, 1);
-              }
-              initGen.push({name: chromosomeToName(thisChr), generation: 1, chromosome: thisChr});
-          }
-          return initGen;
-      },
-
+      
   });
 
 }
 
 function localInitPopulation() {
+    
    Meteor.call('getGenomeJSON', function(e, r) {
+
        r.phenotypeSequence.name = "phenotypeSequence"; 
        r.chromosomeSequence.name = "chromosomeSequence"; 
-       localGenome.insert(r.phenotypeSequence);
-       localGenome.insert(r.chromosomeSequence);
        var chromosomeLength = 0;
        for (var i = 0; i < r.chromosomeSequence.length; i++) {
            chromosomeLength += r.chromosomeSequence[i].bits;
        }
-       console.log(chromosomeLength);
+
+       if("populationSize" in r) _POPULATION_SIZE = r.populationSize;
+       if("mutationProbability" in r) _MUTATION_PROBABILITY = r.mutationProbability;
+       if("endGenerations" in r) _END_GENERATIONS = r.endGenerations;
+       if("selectionMax" in r) _SELECTION_MAX = r.selectionMax;
+       _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 
        localAprons.remove({});
     
