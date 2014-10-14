@@ -101,8 +101,8 @@ if (Meteor.isServer) {
 
 function localInitPopulation() {
     
-   Meteor.call('getGenomeJSON', function(e, r) {
-
+   HTTP.get("designs.json", function(e,r) {
+       r = JSON.parse(r.content);
        r.phenotypeSequence.name = "phenotypeSequence"; 
        r.chromosomeSequence.name = "chromosomeSequence"; 
        var chromosomeLength = 0;
