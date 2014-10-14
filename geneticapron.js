@@ -4,12 +4,9 @@ var _MUTATION_PROBABILITY = 0.1;
 var _END_GENERATIONS = 20.0;
 var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 
-// Set up a collection to contain apron information. On the server,
-// it is backed by a MongoDB collection named "aprons".
 Aprons = new Mongo.Collection("aprons");
 localAprons = new Mongo.Collection(null);
 
-//Aprons = []
 
 if (Meteor.isClient) {
 
@@ -18,7 +15,6 @@ if (Meteor.isClient) {
        localInitPopulation();
     }
   });
-
 
   Template.catalog.aprons = function () {
     return localAprons.find({}, {sort: { rand: 1}});
@@ -48,10 +44,6 @@ if (Meteor.isClient) {
     if(selecteds === undefined)
         return "";
     return (this._id in selecteds) ? "selected" : '';
-  };
-
-  Template.apron.image = function() {
-    return "<img src=/ebola_suit_transp.png>";
   };
 
   Template.breed_controls.events({
@@ -186,9 +178,6 @@ function chromosomeToStyle(chromosome) {
 
       return thisstyle;
 
-}
-function supportsLocalStorage() {
-        return ('localStorage' in window) && window['localStorage'] !== null;
 }
 
 function chromosomeToName(c) {
