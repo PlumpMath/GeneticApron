@@ -1,4 +1,34 @@
 {
+     "chromosomeSequence": [
+        { "name": "stripeBool", "bits": 1, "type": "bool" },
+        { "name": "color1",     "bits": 24, "type": "rgb" },
+        { "name": "color2",     "bits": 24, "type": "rgb" },
+        { "name": "thickness",  "bits": 5, "type": "int", "min": 0, "max": 20},
+        { "name": "angle",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"}
+      ],
+      "phenotypeSequence":  [
+          { "type": "condition", 
+              "condition": {
+               "bool" : "stripeBool",
+               "true"  : 
+                  [ { "type": "expr",
+                      "expr": [
+                          "background: repeating-linear-gradient(",
+                          "$angle", ",",
+                          "$color1", ",",
+                          "$color1", " ",
+                          "$thickness", "px,",
+                          "$color2", " ", "$thickness", "px,",
+                          "$color2", " ", "*2$thickness", "px);"
+                          ]
+                  } ],
+               "false"   : 
+                  [ { "type": "expr",
+                      "expr": ["background-color:", "$color1"]
+                  } ]
+              }
+          }
+      ],
   "designs": [
     { "chromosome": "11101110000010100001111001110111000001010000111100001101000011", "name": ""},
     { "chromosome": "00110010010010101111011010011001001001010111101101111101011110", "name": ""},

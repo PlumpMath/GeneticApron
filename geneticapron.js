@@ -6,6 +6,7 @@ var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 
 Aprons = new Mongo.Collection("aprons");
 localAprons = new Mongo.Collection(null);
+localGenome = new Mongo.Collection(null);
 
 
 if (Meteor.isClient) {
@@ -86,10 +87,17 @@ if (Meteor.isClient) {
 // On server startup, create some aprons if the database is empty.
 if (Meteor.isServer) {
 
-var myjson = {};
+ var myjson = {};
  myjson = JSON.parse(Assets.getText("designs.json"));
 
   Meteor.methods({
+
+      getGenomeJSON: function() {
+        var myjson = {};
+        myjson = JSON.parse(Assets.getText("designs.json"));
+        return myjson;
+      },
+
       initPopulationFromJSON: function() {
           var initGen = [];
           for (var i = 0; i < myjson.designs.length; i++) {
@@ -111,12 +119,29 @@ var myjson = {};
 }
 
 function localInitPopulation() {
-   Meteor.call('initPopulationFromJSON', function(e, r) {
-       localAprons.remove({});
-       for (var i = 0; i < r.length; i++) {
-           localAprons.insert(r[i]);
+   Meteor.call('getGenomeJSON', function(e, r) {
+       r.phenotypeSequence.name = "phenotypeSequence"; 
+       r.chromosomeSequence.name = "chromosomeSequence"; 
+       localGenome.insert(r.phenotypeSequence);
+       localGenome.insert(r.chromosomeSequence);
+       var chromosomeLength = 0;
+       for (var i = 0; i < r.chromosomeSequence.length; i++) {
+           chromosomeLength += r.chromosomeSequence[i].bits;
        }
+       console.log(chromosomeLength);
+
+       localAprons.remove({});
+    
+       for (var i = 0; i < _POPULATION_SIZE ; i++) {
+          thisChr = "";
+          for( var j = 0; j < chromosomeLength; j++) {
+              thisChr += randomIntInterval(0, 1);
+          }
+          localAprons.insert({name: chromosomeToName(thisChr), generation: 1, chromosome: thisChr});
+       }
+
    });
+
    Session.set("selected_apron", undefined);
 }
 
