@@ -17,15 +17,17 @@ body {
         width: 100%;
     }
     .header .description {
-        margin-top: 100px;
+        margin-top: 130px;
     }
     .apron .image {
         width: 170px !important;
         height: 170px !important;
     }
     .title, .menu, .breed_controls {
-        background-color: white;
+        background-color: #DDD;
         position: fixed;
+        left: 0px;
+        padding: 0px 10px;
         width: 100%;
     }
     .title {

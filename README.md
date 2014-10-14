@@ -6,8 +6,7 @@ Design/control of PPE suit imagery through/by local communities
 
 Fitness function provided by users; one-point crossover, bit-flip mutation; mutation probability per chromosome bit is initially 10%, and deceases to 0% after 20 generations.  
 
-Chromosome: || bit 0: stripe off/on  || bits 1-24: color 1 || bits 25-48: color 2 || bits 49-54: thickenss of stripe || bits 54-63: rotation of stripe ||
+Chromosome/phenotypical expression: gene sequence of chromosome noted in chromosome.json; phenotype logic (as a CSS style) also noted in chromosome.json. The phenotype takes the form of a JSON object, in which objects are either expressions, or conditionals that take a boolean value and evalue to one of two true/false expressions. Objects can be nested, so this decision tree can be infinitely deep. Phenotype expressions can handle variables in php-esque syntax, so that "background-color: ${color}" will evaluate if the 'color' vairable is defined in the gene sequence. Simple math expressions are also evaluated, so "${thickness3*4+10}px" will, if 'thickness3' = 2, will properly evaluate to 18.
 
-Powered by Meteor.  
+Powered by Meteor.js
 
-(hacked together over the course of 4 hours, so buyer beware)
