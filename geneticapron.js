@@ -173,37 +173,36 @@ function chromosomeToStyle(chromosome) {
         { "name": "thickness",  "bits": 5, "type": "int", "min": 0, "max": 20},
         { "name": "angle",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"}];
 
-
-
       var phenotypeSequence = [
           { "type": "condition", 
               "condition": {
                "bool" : "stripeBool",
                "true"  : 
                   [ { "type": "expr",
-                      "expr": ["border: 10px solid pink;"]
+                      "expr": [
+                          "background: repeating-linear-gradient(",
+                          "$angle", ",",
+                          "$color1", ",",
+                          "$color1", " ",
+                          "$thickness", "px,",
+                          "$color2", " ", "$thickness", "px,",
+                          "$color2", " ", "*2$thickness", "px);",
+                          ]
                   } ],
                "false"   : 
                   [ { "type": "expr",
                       "expr": ["background-color:", "$color1"]
                   } ],
               }
-          },
-          { "type" : "expr",
-              "expr": ["color:", "$color2"]
           }
       ];
 
                
-
       var genes = chromosomeToGenes(chromosome, chromosomeSequence);
-      console.log(" ");
-      console.log(" ");
-      console.log("ALLLLLLL GENES TO PHENOTYPE");
       var phenotype = genesToPhenotype(genes, phenotypeSequence);
-      console.log("FINAL PHENOTYPE = " + phenotype);
-      console.log("//ALLLLLLL GENES TO PHENOTYPE");
+      console.log("final sequence = " + phenotype);
 
+      return phenotype;
 
       if(genes.stripeBool == false) {    
         return "background-color:" + genes.color1;
@@ -231,51 +230,46 @@ function genesToPhenotype(genes, phenotypeSequence) {
 
     /* recursive function to convert phenotype sequence into a properly formatted phenotype, allowing for conditionals, etc. */
 
-  console.log("opening genesToPHenotype {");
-  console.log("phenotypeSequence = "); console.log(phenotypeSequence);
   var thisPheno = "";
 
   for(var i = 0; i < phenotypeSequence.length; i++) {
     var thisSeq = phenotypeSequence[i];
-    console.log("thisSeq = "); console.log(thisSeq);
     switch(thisSeq.type) {
         case "condition":
-            console.log("condition: " + genes[thisSeq.condition.bool]);
             if(genes[thisSeq.condition.bool] == true) {
-                console.log("UYES");
-                console.log(thisSeq.condition.true);
-                console.log("thisPHeno Before: " + thisPheno);
                 thisPheno += genesToPhenotype(genes, thisSeq.condition.true);
-                console.log("thisPHeno Aftere: " + thisPheno);
             } else {
-                console.log(thisSeq.condition.false);
                 thisPheno += genesToPhenotype(genes, thisSeq.condition.false);
             }
             break;
         case "expr":
             thisPheno += processExpression(genes, thisSeq.expr);
-            console.log("expr:" + thisPheno);
             break;
     }
   }
-  console.log("} closing genesToPHenotype");
   return thisPheno;
 }
 
 
 function processExpression(genes, expr) {
-    console.log("we are in processExpression");
-    console.log(expr);
     var processed = "";
     for(var i = 0; i < expr.length; i++) {
         var thisExpr = expr[i];
-        if(thisExpr[0] == "$") {
+        var varSplit = thisExpr.split("$");
+        if(varSplit.length > 1)  {
             //handle variable insertion
-            processed += genes[thisExpr.slice(1)];
+            var multiSplit = varSplit[0].split("*");
+            var multiplier = 1;
+            if(multiSplit.length > 1) {
+                //handle multpliers
+                multiplier = parseInt(multiSplit[1]);
+                processed += parseInt(genes[varSplit[1]]) * multiplier;
+            } else {
+                processed += genes[varSplit[1]];
+            }
         } else {
             processed += thisExpr;
         }
-        processed += " ";
     }
     processed += "; ";
     return processed;
@@ -292,8 +286,6 @@ function chromosomeToGenes(chromosome, geneSequence) {
           var endBit = startBit + thisSeq.bits;
           var thisGene = chromosome.slice(startBit, endBit);
           var thisPhenotype;
-
-//          console.log(startBit + " to " + endBit + " : " + thisGene);
 
           switch(thisSeq.type) {
               case "bool":
@@ -321,7 +313,6 @@ function chromosomeToGenes(chromosome, geneSequence) {
           startBit = endBit;
       }
 
-//      console.log(genes);
       return genes; 
 }
 
