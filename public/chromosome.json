@@ -1,29 +1,39 @@
 {
      "populationSize": 100,
      "mutationProbability": 0.1,
-     "endGenerations": 20.0,
-     "selectionMax": 5,
+     "endGenerations": 15.0,
+     "selectionMax": 10,
      "chromosomeSequence": [
         { "name": "stripeBool", "bits": 1, "type": "bool" },
+        { "name": "repeatingGradBool", "bits": 1, "type": "bool" },
+        { "name": "rhombBool", "bits": 1, "type": "bool" },
         { "name": "color1",     "bits": 24, "type": "rgb" },
         { "name": "color2",     "bits": 24, "type": "rgb" },
         { "name": "thickness1",  "bits": 5, "type": "int", "min": 0, "max": 20},
         { "name": "angle",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"},
-        { "name": "repeatingGradBool", "bits": 1, "type": "bool" },
         { "name": "color3",     "bits": 24, "type": "rgb" },
         { "name": "color4",     "bits": 24, "type": "rgb" },
         { "name": "thickness2",  "bits": 5, "type": "int", "min": 0, "max": 20},
         { "name": "thickness3",  "bits": 5, "type": "int", "min": 2, "max": 10},
-        { "name": "thickness4",  "bits": 5, "type": "int", "min": 5, "max": 50},
-        { "name": "repeatx",  "bits": 8, "type": "int", "min": 8, "max": 50},
-        { "name": "repeaty",  "bits": 8, "type": "int", "min": 8, "max": 50}
+        { "name": "thickness4",  "bits": 5, "type": "int", "min": 5, "max": 30},
+        { "name": "repeatx",  "bits": 8, "type": "int", "min": 4, "max": 50},
+        { "name": "repeaty",  "bits": 8, "type": "int", "min": 4, "max": 50},
+        { "name": "angle2",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"},
+        { "name": "angle3",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"},
+        { "name": "percentage",      "bits": 8, "type": "int", "min": 0, "max": 100, "postfix" : "%"},
+        { "name": "color5",     "bits": 24, "type": "rgb" },
+        { "name": "color6",     "bits": 24, "type": "rgb" },
+        { "name": "bandsmall",  "bits": 5, "type": "int", "min": 5, "max": 15},
+        { "name": "bandwide",  "bits": 5, "type": "int", "min": 10, "max": 25},
+        { "name": "backsizex",  "bits": 5, "type": "int", "min": 10, "max": 35},
+        { "name": "backsizey",  "bits": 5, "type": "int", "min": 10, "max": 35}
       ],
       "phenotypeSequence":  [
       { "type": "expr",
         "expr": "background-color: $color4 ;"
       },
-          { "type": "condition", 
-              "condition": {
+      { "type": "condition", 
+          "condition": {
                "bool" : "stripeBool",
                "true"  : 
                   [ { "type": "expr",
@@ -42,6 +52,19 @@
                     [ { "type": "expr",
                         "expr": "background-image: repeating-radial-gradient($color3 0, $color3 ${thickness4}px, transparent ${thickness4+thickness3}px, transparent ${thickness4*2}px, $color3 ${thickness4*2+thickness3}px, $color3 ${thickness4*3}px, transparent ${thickness4*3+thickness3}px, transparent ${thickness4*4}px); background-size: ${repeatx}px ${repeaty}px;"
                 } ],
+            "false" :
+              [ { "type": "expr",
+                      "expr": ""
+                  } ]
+              }
+      },
+      { "type": "condition",
+            "condition": {
+                "bool": "rhombBool",
+                "true": 
+                    [ { "type": "expr",
+                        "expr": "background: linear-gradient($angle2 , transparent $percentage , $color5  $percentage ) 0 0, linear-gradient($angle3 , transparent $percentage , $color5  $percentage ) 0 0, linear-gradient($angle2 , transparent $percentage , $color5  $percentage ) ${bandsmall}px -${bandwide}px, linear-gradient($angle3 , transparent $percentage , $color5  $percentage ) ${bandsmall}px -${bandwide}px, $color6 ; background-size: ${backsizex}px ${backsizey}px;" 
+                        } ],
             "false" :
               [ { "type": "expr",
                       "expr": ""

@@ -232,6 +232,7 @@ function processExpression(genes, expr) {
             if(varstring[i] in genes) varstring[i] = genes[varstring[i]];
         }
         varstring = varstring.join('');
+        console.log(varstring);
         varstring = eval(varstring);
         return varstring;
     });
