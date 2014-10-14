@@ -98,7 +98,7 @@ if (Meteor.isServer) {
 
 function localInitPopulation() {
     
-   HTTP.get("designs.json", function(e,r) {
+   HTTP.get("chromosome.json", function(e,r) {
        r = JSON.parse(r.content);
        r.phenotypeSequence.name = "phenotypeSequence"; 
        r.chromosomeSequence.name = "chromosomeSequence"; 
