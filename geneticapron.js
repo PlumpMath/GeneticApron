@@ -4,6 +4,8 @@ var _MUTATION_PROBABILITY = 0.1;
 var _END_GENERATIONS = 20.0;
 var _MUTATION_REDUCTION_RATE = _MUTATION_PROBABILITY / _END_GENERATIONS;
 
+var chromosomeSequence, phenotypeSequence;
+
 Aprons = new Mongo.Collection("aprons");
 localAprons = new Mongo.Collection(null);
 
@@ -89,12 +91,7 @@ if (Meteor.isServer) {
 
   Meteor.methods({
 
-      getGenomeJSON: function() {
-        var myjson = {};
-        myjson = JSON.parse(Assets.getText("designs.json"));
-        return myjson;
-      },
-      
+            
   });
 
 }
@@ -105,6 +102,10 @@ function localInitPopulation() {
        r = JSON.parse(r.content);
        r.phenotypeSequence.name = "phenotypeSequence"; 
        r.chromosomeSequence.name = "chromosomeSequence"; 
+       
+       chromosomeSequence = r.chromosomeSequence;
+       phenotypeSequence = r.phenotypeSequence;
+
        var chromosomeLength = 0;
        for (var i = 0; i < r.chromosomeSequence.length; i++) {
            chromosomeLength += r.chromosomeSequence[i].bits;
@@ -177,58 +178,12 @@ function evolveGeneration(fittest_ids) {
 }
 
 function chromosomeToStyle(chromosome) {
-      var chromosomeSequence = [
-        { "name": "stripeBool", "bits": 1, "type": "bool" },
-        { "name": "color1",     "bits": 24, "type": "rgb" },
-        { "name": "color2",     "bits": 24, "type": "rgb" },
-        { "name": "thickness",  "bits": 5, "type": "int", "min": 0, "max": 20},
-        { "name": "angle",      "bits": 8, "type": "int", "min": 0, "max": 180, "postfix" : "deg"}];
-
-      var phenotypeSequence = [
-          { "type": "condition", 
-              "condition": {
-               "bool" : "stripeBool",
-               "true"  : 
-                  [ { "type": "expr",
-                      "expr": [
-                          "background: repeating-linear-gradient(",
-                          "$angle", ",",
-                          "$color1", ",",
-                          "$color1", " ",
-                          "$thickness", "px,",
-                          "$color2", " ", "$thickness", "px,",
-                          "$color2", " ", "*2$thickness", "px);",
-                          ]
-                  } ],
-               "false"   : 
-                  [ { "type": "expr",
-                      "expr": ["background-color:", "$color1"]
-                  } ],
-              }
-          }
-      ];
-
-               
+              
       var genes = chromosomeToGenes(chromosome, chromosomeSequence);
       var phenotype = genesToPhenotype(genes, phenotypeSequence);
       console.log("final sequence = " + phenotype);
 
       return phenotype;
-
-      if(genes.stripeBool == false) {    
-        return "background-color:" + genes.color1;
-      } 
-      else {
-          var phenotype = 'background: repeating-linear-gradient(' 
-                  + genes.angle + ',' 
-                  + genes.color1 + ',' 
-                  + genes.color1 + ' ' 
-                  + genes.thickness + 'px,' 
-                  + genes.color2 + ' ' + genes.thickness + 'px,' 
-                  + genes.color2 + ' ' + (genes.thickness * 2) + 'px);';
-          return phenotype;
-      }
-
 }
 
 function chromosomeToName(c) {
@@ -264,26 +219,24 @@ function genesToPhenotype(genes, phenotypeSequence) {
 
 function processExpression(genes, expr) {
     var processed = "";
-    for(var i = 0; i < expr.length; i++) {
-        var thisExpr = expr[i];
-        var varSplit = thisExpr.split("$");
-        if(varSplit.length > 1)  {
-            //handle variable insertion
-            var multiSplit = varSplit[0].split("*");
-            var multiplier = 1;
-            if(multiSplit.length > 1) {
-                //handle multpliers
-                multiplier = parseInt(multiSplit[1]);
-                processed += parseInt(genes[varSplit[1]]) * multiplier;
-            } else {
-                processed += genes[varSplit[1]];
-            }
-        } else {
-            processed += thisExpr;
+    var thisExpr = expr;
+    var varSplit = thisExpr.split("$");
+
+    var thisExpr = thisExpr.replace(/\$\w+ /g, function(all) {
+       return genes[all.slice(1).trim()] + " " || all;
+    });
+
+    var thisExpr = thisExpr.replace(/\$\{.+?\}/g, function(all) {
+        var varstring = all.replace(/\$\{|\}/g,'').split(/([+|*])/);
+        for(var i = 0; i < varstring.length; i++) {
+            if(varstring[i] in genes) varstring[i] = genes[varstring[i]];
         }
-    }
-    processed += "; ";
-    return processed;
+        varstring = varstring.join('');
+        varstring = eval(varstring);
+        return varstring;
+    });
+
+    return thisExpr;
 }
 
 
